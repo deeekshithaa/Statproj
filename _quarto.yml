@@ -1,0 +1,25 @@
+project:
+  type: website
+  output-dir: docs
+  
+website:
+  title: "Data Visualizations"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+      - graphs.qmd
+      - explanation1.qmd
+      - oilproductiongraphs.qmd
+      - explanation2.qmd
+      - midproject_codes.qmd
+      - video_presentation.qmd
+      
+format:
+  html:
+    theme: lumen
+    css: styles.css
+    toc: true
+
+editor: visual

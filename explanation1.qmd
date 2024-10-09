@@ -1,0 +1,130 @@
+---
+title: "Explanation of Covid Graphs"
+---
+
+# Redesign 1: Faceted Line Plot
+
+## Bad Graph: Spiral Graph
+
+![](spiral_image.jpg)
+
+**Why the Spiral Graph is a Bad Visualization**
+
+There are many reasons why a **spiral graph** is considered a very bad choice to show complex or time-series data:
+
+1.  **Visual Complexity**: A spiral graph tends to pack a great deal of information into a compact, non-linear format. Visually interesting, perhaps, but tough to follow, particularly for data represented over time or across multiple categories. The spiral has to work against itself, where the viewer has to discover the data in some convoluted path. This is particularly problematic as a means of viewing trends or changes over time since the circular nature of the spiral distorts continuity.
+
+2.  **Lack of Comparability**: It is not easy to compare data points with a spiral graph; this is because, as you are moving outward, the distance between any two data points changes, hence showing the wrong representation of the fluctuation or trend of the data. This makes panels virtually impossible to compare across different variables or categories, since data points that fall close together may well be noncomparable. This then makes it hard to pick out which countries hold more deaths or if there is a consistent upward or downward trend.
+
+3.  **Illusory Trends**: Spiral graphs often display misleading trends due to the wrapping of data into the spiral, compressing long periods of time into very tight areas near the center and stretching more recent data farther out. It allows viewers to incorrectly assume that data points far apart in the spiral really are different when they might be close in actual value, or vice versa.
+
+4.  **Poor with Timeseries Data**: Times-series data are, by definition, linear because time itself is a natural and simple function. Spiral presentation of such data discredits the 'natural flow' and the audience has to work their brains for a while to trace a straight line in their minds.
+
+-   In cases of more than one time period, the spiral graph is very cluttered and normally does not permit the viewing of an individual point or of a trend over a given period.
+
+
+
+# Redesign 1: Stacked Area Chart
+
+## Improved Graph: Stacked Area Chart
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(plotly)
+source("hw.R")
+library(readxl)
+Dataset <- read_excel("Dataset.xls")
+
+
+# Creating a stacked area chart which showing total deaths over time by country
+redesign2 <- ggplot(Dataset, aes(x = Date, y = Average_Deaths_Per_Day, fill = Country)) +
+  geom_area(alpha = 0.6 , size = 0.5, color = "black")  +  
+  labs(title = "Total Daily Deaths Over Time by Country (Stacked Area Chart)",
+       x = "Date", 
+       y = "Deaths Per Day",
+       fill = "Country") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+#interactive graph using plotly
+stacked_area_plot <- ggplotly(redesign2)
+
+# graph
+stacked_area_plot
+
+```
+
+##Why it is good:
+
+**Cumulative View:** The stacked-area chart is great for showing the cumulative total of something, for example the total number of deaths contributed by each country overtime. It can show in one contribution and an overview of the trend in global deaths.
+
+**Proportional Visualization**: The countries each had an area, and the stack mapped the proportion of daily or cumulative deaths compared with others. This helps communicate not only the time trends but also how much each country contributes to the whole.
+
+**Trend Continuity**: In the spiral graph, time distorts the progression of the graph, while in the stacked area chart, time flow is linear, obvious, and on the x-axis. Due to this, the upward trend from the accumulation of global deaths was easier to read.
+
+**Aggregate Insights**: Faceted line plot is best suited for detailed, per country trends. On the other hand, the stacked area plot gives a higher level view. These will help to answer more general questions such as "Which countries contribute most to the global total?" or "What are the overall trends in global deaths?
+
+### Why it's better than a spiral:
+
+It provides a clear, linear representation of time, avoids visual distortion from the spiral graph, and provides an intuitive feel for how the individual contributions-countries-add up to the total. You can't get a sense for how the countries relate to each other and to the worldwide total with spirals as you can in a clean and orderly stacked area chart.
+
+# Redesign 2: Bubble Chart
+
+## Improved Graph: Bubble Chart
+
+library(readxl)
+Dataset <- read_excel("Dataset.xls")
+
+```{r, echo=FALSE,  message=FALSE, warning=FALSE}
+Dataset <- Dataset %>%
+  group_by(Country) %>%
+  arrange(Date) %>%
+  mutate(Cumulative_Deaths_Per_Day = cumsum(Average_Deaths_Per_Day)) %>%
+  ungroup()
+
+# Creating a bubble graph showing the cumulative deaths by country
+redesign2 <- ggplot(Dataset, aes(x = Country, y = Cumulative_Deaths_Per_Day, 
+                                      size = Cumulative_Deaths_Per_Day, color = Country)) +
+  geom_point(alpha = 0.3) +  # Bubble chart with transparency
+  scale_size(range = c(2, 10)) +  # Adjust bubble sizes
+  labs(title = "Deaths by Country: Cumulative Bubble Chart", 
+       x = "Country", 
+       y = "Cumulative Deaths",
+       size = "Cumulative Deaths") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Creating interactive bubble chart using plotly
+bubble_chart <- ggplotly(redesign2)
+
+# graph
+bubble_chart
+```
+
+
+##Why it is good:
+
+**Representation of Magnitude:** In a bubble chart, the magnitude of cumulative deaths per country is depicted visually through the size of the bubbles. The ways people intuitively understand the comparisons of the sizes of deaths between countries are much easier to consider when viewing larger comparative bubbles.
+
+**Comparability:** Since bubbles are spatially separated, there is no overlap, one of the side effects of using spiral graphs. Comparing each country on its bubble size is very easy and viewers can instantaneously perceive which countries have been affected the most.
+
+**Clarity for High-Level Overview:** Bubble Charts are very good for high-level overviews. Since a bubble would represent each country in the graph, it can portray which countries suffer from higher deadliness. This makes it ideal to behold the global impact sans the information overload for too much detail.
+
+**Space Usage:** A good bubble chart makes better use of space than does a spiral graph. Therefore, it would be neater and less cluttered, hence capable of housing a large number of data points-countries.
+
+### Why it's better than a spiral : 
+
+<!-- The bubble chart shows the relative size much clearer and is much easier to interpret at a glance. While the spiral graph, due to its overlapping points and confusing trends, did not state so clearly that some countries have higher or lower cumulative deaths, the bubble chart does. This clarity in perceived size avoids ambiguity from the shape of the spiral itself. -->
+
+
+## Graph Insights
+Country with the highest average death rates a day: The USA topped the list with an average of 1,180 deaths per day.
+Information about countries:
+China has a range of average daily deaths from 64 - 1,154, with the average daily difference being 38 deaths.
+France, daily deaths fluctuated between 71 and 1,007 with a mean change of 71 deaths per day.
+Germany with an average of such deaths ranging from 0 to 1,173 deaths per day and more frequently about 28 deaths.
+Italy had such deaths that went as high as 1,179 deaths in a singular day and 59 deaths was seen every day.
+Spain has Deaths reached from 141 and 1,071 and average increase rates were 19 deaths per day, indicating that the number of deaths was guided.
+In particular, the present statistics indicate the difference in numbers of deaths that is as a result of the present widespread severe and fatal pandemic COVID-19 in the USA as compared to impacts of this pandemic in evidenced in other countries.

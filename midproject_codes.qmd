@@ -1,0 +1,147 @@
+---
+title: "Codes"
+---
+
+Visualization1:
+
+library(ggplot2)
+
+library(dplyr)
+
+library(tidyr)
+
+library(plotly)
+
+source("hw.R")
+
+
+
+Redesign 1:
+
+redesign1 <- ggplot(Dataset, aes(x = Date, y = Average_Deaths_Per_Day, fill = Country)) +
+  geom_area(alpha = 0.6 , size = 0.5, color = "black")  +  
+  labs(title = "Total Daily Deaths Over Time by Country (Stacked Area Chart)",
+       x = "Date", 
+       y = "Deaths Per Day",
+       fill = "Country") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+stacked_area_plot <- ggplotly(redesign1) #creating interactive plot using plotly
+
+stacked_area_plot # graph
+
+
+
+Redesign 2:
+
+Dataset <- Dataset %>%
+  group_by(Country) %>%
+  arrange(Date) %>%
+  mutate(Cumulative_Deaths_Per_Day = cumsum(Average_Deaths_Per_Day)) %>%
+  ungroup()
+
+redesign2 <- ggplot(Dataset, aes(x = Country, y = Cumulative_Deaths_Per_Day, 
+                                      size = Cumulative_Deaths_Per_Day, color = Country)) +
+  geom_point(alpha = 0.3) +  # Bubble chart with transparency
+  scale_size(range = c(2, 10)) +  # Adjust bubble sizes
+  #scale_color_manual(values = c("China" = "lightpink", "France" = "lightyellow", "Germany" = "lightgreen", "Italy"="cyan", "Spain" = "lightblue", "UK" = "cornflowerblue", "USA" = "hotpink")) +  # Custom colors for each country
+  labs(title = "Cumulative Deaths by Country (Bubble Chart)", 
+       x = "Country", 
+       y = "Cumulative Deaths",
+       size = "Cumulative Deaths") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+bubble_chart <- ggplotly(redesign2)
+
+bubble_chart # graph
+
+
+
+
+
+
+
+Visualization 2:
+
+library(readxl) #to read xlsv files
+
+library(ggplot2)
+
+library(plotly)
+
+library(dplyr)
+
+source("hw.R")
+
+colnames(oildataset)
+
+
+Redesign 1:
+
+library(ggplot2)
+
+library(plotly)
+
+visualization1 <- ggplot(oildataset, aes(x = reorder(Country, `Oil Production (Thousand B/D)`), 
+                                         y = `Oil Production (Thousand B/D)`, fill = Group)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Oil Production by Country in 2022", x = "Country", y = "Production (Thousand B/D)") +
+  scale_fill_manual(values = c("Non-OPEC Countries" = "darkmagenta", 
+                               "OPEC Countries" = "chocolate", 
+                               "OPEC+ Countries" = "darkolivegreen4")) +  
+  theme_minimal()
+
+bar_chart <- ggplotly(visualization1) # interactive
+
+bar_chart # graph
+
+
+
+Redesign 2:
+
+install.packages("rnaturalearth") #package that allows access to Natural Earth map data.
+
+install.packages("rnaturalearthdata") #this package provides the actual Natural Earth datasets.
+
+
+library(rnaturalearth)
+
+library(rnaturalearthdata)
+
+library(ggplot2)
+
+library(dplyr)
+
+library(plotly)
+
+world <- ne_countries(scale = "medium", returnclass = "sf") # world map data from rnaturalearth
+
+
+map_data <- world %>%
+  left_join(oildataset, by = c("name" = "Country")) # merging oil production data with world map 
+
+
+library(ggplot2)
+
+library(plotly)
+
+library(sf)        # For spatial data
+
+library(viridis)   # For color scales
+
+
+geo_map <- ggplot(map_data) + # geospatial map 
+  geom_sf(aes(fill = `Oil Production (Thousand B/D)`), color = "white") +  # Fill countries with oil production data
+  scale_fill_gradientn(colors = c("purple", "coral2", "darkgoldenrod2"), na.value = "gray") + 
+  labs(title = "Global Oil Production in the year 2022", fill = "Thousand B/D") +  # Adding titles and legend labels
+  theme_minimal() +  # Simple theme
+  theme(plot.title = element_text(hjust = 0.5))  # Center the title
+
+interactive_geo_map <- ggplotly(geo_map) #normal graph to interactive
+
+
+interactive_geo_map # display
+
